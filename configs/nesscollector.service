@@ -1,0 +1,21 @@
+[Unit]
+Description=PrivateNess state collector (feeds NESS_DASHBOARD.html)
+After=network-online.target emercoind.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/nesscollector
+ExecStart=/opt/nesscollector/nesscollector
+Environment=EMERCOIND_AUTH=rpcuser:rpcpassword
+Environment=PAYMENT_ADDR=
+Environment=HOARD_ADDR=
+Environment=NESSCTL=/usr/local/bin/nessctl
+# Read-only by default. To allow Force Payout / Launch Randpay from the dashboard,
+# uncomment the next line (delegates to nessctl; the collector never holds keys):
+# Environment=COLLECTOR_ENABLE_ACTIONS=1
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

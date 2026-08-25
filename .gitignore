@@ -1,0 +1,22 @@
+# build output (anchored to repo root so cmd/nesscollector/ is NOT matched)
+/bin/
+/dist/
+/nesscollector
+/nessbridge
+*.exe
+*.test
+
+# local operator config — NEVER commit: contains RPC credentials
+/collector.json
+*.local.json
+
+# keys — NEVER commit
+*.key.json
+.privateness-keys/
+wallet.dat
+
+# editor / OS
+.DS_Store
+*.swp
+.idea/
+.vscode/

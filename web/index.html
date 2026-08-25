@@ -1,0 +1,678 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NESS · Sovereign · Private · Rewarding</title>
+<style>
+:root{
+  --bg:#060a12;--p1:#0b111c;--p2:#0d1626;--line:#182234;--text:#cbd5e1;--muted:#5b6b82;
+  --lbrty:#a855f7;--se:#38bdf8;--sky:#3b82f6;--dns:#22c55e;--ygg:#4ade80;--i2p:#eab308;--tor:#d946ef;
+  --nch:#22c55e;--green:#34d399;--amber:#f5a524;--red:#ef4444;--cyan:#3fd8ff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:radial-gradient(1200px 700px at 50% -10%,#0e1a2e,#060a12 60%);color:var(--text);
+  font:12px/1.4 "Inter",system-ui,-apple-system,"Segoe UI",sans-serif}
+.num{font-variant-numeric:tabular-nums;font-family:"SF Mono","JetBrains Mono",Consolas,monospace}
+
+.app{height:100vh;display:grid;grid-template-rows:40px 1fr 22px;gap:8px;padding:8px}
+
+/* ── header ── */
+.head{display:flex;align-items:center;gap:10px;padding:0 4px;flex-wrap:nowrap}
+.mark{color:var(--green);font-size:16px}
+.ctl{display:flex;align-items:center;gap:5px}
+.lab{color:var(--muted);font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+select,.fbtn,.btn{background:#0a1220;border:1px solid var(--line);color:#cbd5e1;border-radius:6px;
+  padding:5px 9px;font-size:11px;font-family:inherit;cursor:pointer;transition:.15s}
+select{max-width:190px}
+select:hover,.fbtn:hover,.btn:hover{border-color:var(--green);color:var(--green)}
+.btn.go{background:linear-gradient(180deg,#1f7a45,#15603a);color:#eafff2;border-color:transparent;font-weight:600}
+.btn.go:hover{filter:brightness(1.18);color:#fff}
+.tag{color:var(--muted);letter-spacing:.3em;font-size:9px;flex:1;text-align:center;white-space:nowrap}
+.hs{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:10px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);transition:.3s}
+.dot.ok{background:var(--green);box-shadow:0 0 9px var(--green);animation:bp 2s infinite}
+.dot.no{background:var(--amber)}
+@keyframes bp{0%,100%{opacity:1}50%{opacity:.45}}
+input[type=file]{display:none}
+
+/* ── grid ── */
+.grid{display:grid;grid-template-columns:250px 1fr 262px;grid-template-rows:1fr 1fr;gap:8px;min-height:0}
+.pan{background:linear-gradient(180deg,var(--p1),var(--p2));border:1px solid var(--line);
+  border-radius:10px;padding:10px;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.pt{display:flex;align-items:center;gap:6px;font-size:9px;letter-spacing:.15em;color:#8ea3bf;
+  text-transform:uppercase;margin-bottom:8px;flex:none}
+.prov{margin-left:auto;font-size:8px;letter-spacing:.07em;padding:1px 6px;border-radius:99px;border:1px solid}
+.prov.node{color:var(--green);border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.08)}
+.prov.file{color:var(--cyan);border-color:rgba(63,216,255,.4);background:rgba(63,216,255,.07)}
+.prov.none{color:var(--muted);border-color:var(--line)}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+
+/* first-run guide — makes it usable */
+.guide{flex:1;display:grid;place-content:center;text-align:center;padding:8px;gap:8px}
+.guide .h{color:#8ea3bf;font-size:10px;letter-spacing:.16em}
+.guide .s{color:var(--muted);font-size:10px;line-height:1.85;max-width:230px}
+.guide .steps{text-align:left;color:var(--muted);font-size:10px;line-height:2}
+.guide .steps b{color:var(--green);font-family:monospace}
+.unobs{flex:1;display:grid;place-content:center;text-align:center;color:var(--muted);font-size:10px;line-height:1.85;padding:6px}
+.unobs b{display:block;color:#6b7f9c;font-size:9px;letter-spacing:.18em;margin-bottom:5px}
+
+.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 10px;font-size:11px;align-items:baseline;flex:none}
+.k{color:var(--muted);font-size:9px;letter-spacing:.09em;text-transform:uppercase}
+.v{text-align:right}.v.g{color:var(--green)}.v.a{color:var(--amber)}.v.m{color:var(--muted)}.v.c{color:var(--cyan)}
+
+/* energy */
+.energy{display:flex;align-items:center;gap:12px;margin:8px 0;flex:none}
+.ering{position:relative;width:76px;height:76px;flex:none}
+.ering .lab{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ering .pc{font-size:12px;font-weight:700;color:var(--green)}
+.ering .pc.no{color:#3f5170;font-size:9px;font-weight:400}
+.etxt{flex:1;min-width:0}
+.etxt .t{color:var(--nch);font-size:9px;letter-spacing:.1em}
+.etxt .b{font-size:23px;font-weight:700;color:var(--green);line-height:1.15}
+.etxt .b.no{color:#3f5170;font-size:14px;font-weight:400}
+.etxt .u{color:var(--muted);font-size:9px}
+
+.layers{display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;min-height:0}
+.lr{display:flex;align-items:center;gap:7px}
+.lr .lv{color:#3f5170;font-size:8px;width:24px}
+.lr .n{color:#b8c4d6}
+.lr .s{margin-left:auto;font-size:10px;display:flex;align-items:center;gap:5px}
+.sd{width:6px;height:6px;border-radius:50%}
+.s-online .sd{background:var(--green);box-shadow:0 0 6px var(--green);animation:bp 2.4s infinite}.s-online span{color:var(--green)}
+.s-standby .sd{background:var(--muted)}.s-standby span{color:var(--muted)}
+.s-offline .sd{background:var(--red)}.s-offline span{color:var(--red)}
+.s-degraded .sd{background:var(--amber)}.s-degraded span{color:var(--amber)}
+.s-unknown .sd{background:#2b3a52}.s-unknown span{color:#3f5170}
+.gl{width:13px;text-align:center;font-size:10px}
+
+canvas{display:block;width:100%;flex:1;min-height:0;border-radius:7px}
+.legend{display:flex;flex-wrap:wrap;gap:3px 10px;font-size:9px;color:#8ea3bf;margin-top:6px;flex:none}
+.legend i{width:11px;height:2px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:7px;flex:none}
+.st{background:#0a0f18;border:1px solid var(--line);border-radius:7px;padding:6px;text-align:center}
+.st .k2{color:var(--muted);font-size:8px;letter-spacing:.1em}
+.st .v2{font-size:16px;font-weight:700;margin-top:2px}
+.st .v2.no{color:#3f5170;font-size:12px;font-weight:400}
+
+.rows{display:flex;flex-direction:column;gap:4px;overflow-y:auto;font-size:10px;min-height:0}
+.rows::-webkit-scrollbar{width:5px}.rows::-webkit-scrollbar-thumb{background:#1e2a3d;border-radius:3px}
+.pend{border-left:2px solid var(--amber);padding:4px 7px;background:rgba(245,165,36,.05);border-radius:0 5px 5px 0}
+.pend .nm{color:var(--cyan);font-family:"SF Mono",Consolas,monospace;font-size:9px;word-break:break-all}
+.pend .op{color:var(--muted);font-size:9px;margin-top:1px}
+
+.rtbar{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex:none}
+.rtk{color:var(--muted);font-size:9px;line-height:1.4}
+.rtn{margin-left:auto;color:var(--cyan);font-size:11px}
+.rec{border-left:2px solid var(--line);padding:4px 7px;border-radius:0 5px 5px 0;background:rgba(255,255,255,.014)}
+.rec .nm{font-family:"SF Mono",Consolas,monospace;font-size:9px;word-break:break-all;color:#b8c4d6}
+.rec .vl{color:var(--muted);font-size:9px;margin-top:1px;word-break:break-all}
+.rec .vd{float:right;font-size:8px;letter-spacing:.08em;padding:0 5px;border-radius:99px;border:1px solid}
+.rec.pend{border-left-color:var(--amber);background:rgba(245,165,36,.05)}
+.rec.pend .vd{color:var(--amber);border-color:rgba(245,165,36,.45)}
+.rec.id{border-left-color:var(--lbrty)}.rec.id .vd{color:var(--lbrty);border-color:rgba(168,85,247,.45)}
+.rec.rep{border-left-color:var(--green)}.rec.rep .vd{color:var(--green);border-color:rgba(52,211,153,.45)}
+.rec.dpo{border-left-color:var(--red)}.rec.dpo .vd{color:var(--red);border-color:rgba(239,68,68,.45)}
+.rec.node{border-left-color:var(--sky)}.rec.node .vd{color:var(--sky);border-color:rgba(59,130,246,.45)}
+.foot{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:9px;padding:0 4px}
+.foot b{color:var(--green)}.foot .sp{flex:1}
+.rule{color:#3f5170}
+.warn{color:var(--amber)}
+.ov{position:fixed;inset:0;background:rgba(4,8,14,.78);display:none;place-content:center;z-index:120;padding:16px}
+.ov.on{display:grid}
+.dlg{background:linear-gradient(180deg,#0b111c,#0d1626);border:1px solid var(--line);border-radius:12px;
+  width:min(760px,94vw);max-height:92vh;display:flex;flex-direction:column;padding:14px;gap:9px}
+.dh{display:flex;align-items:center;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8ea3bf}
+.dh .btn{margin-left:auto;padding:2px 9px}
+.dnote{color:var(--muted);font-size:10px;line-height:1.7}
+.dnote b{color:var(--green)}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dgrid label{display:flex;flex-direction:column;gap:3px;color:var(--muted);font-size:9px;letter-spacing:.08em;text-transform:uppercase}
+.dgrid input{background:#0a1220;border:1px solid var(--line);color:#cbd5e1;border-radius:6px;padding:6px 8px;font-size:12px;font-family:inherit}
+.dgrid input:focus{outline:none;border-color:var(--green)}
+.dhint{color:#3f5170;font-size:9px}
+.dact{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.dact .dsp{flex:1}
+.lnk{color:var(--cyan);font-size:10px;text-decoration:none;border-bottom:1px dotted rgba(63,216,255,.4)}
+.lnk:hover{color:#fff}
+#wOut{flex:1;min-height:190px;background:#050a12;border:1px solid var(--line);border-radius:8px;color:#9fe8c0;
+  font:11px/1.55 "SF Mono","JetBrains Mono",Consolas,monospace;padding:10px;resize:none;white-space:pre;overflow:auto}
+.dfoot{color:var(--muted);font-size:10px;line-height:1.6}
+.dfoot code,.dnote code{color:var(--cyan);font-family:"SF Mono",Consolas,monospace;font-size:10px}
+.dfoot b{color:#b8c4d6}
+.toast{position:fixed;bottom:34px;left:50%;transform:translateX(-50%);background:#0d1626;
+  border:1px solid var(--line);border-radius:8px;padding:9px 16px;font-size:11px;color:#cbd5e1;
+  opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:520px}
+.toast.show{opacity:1}
+.toast.warn{border-color:rgba(245,165,36,.5);color:var(--amber)}
+</style></head>
+<body>
+<div class="app">
+
+  <div class="head">
+    <span class="mark">◈</span>
+    <span class="ctl">
+      <span class="lab">Identity</span>
+      <select id="idPick" onchange="pickIdentity()" title="Pick an identity observed on-chain or loaded from a key file">
+        <option value="">— none observed —</option>
+      </select>
+      <button class="fbtn" onclick="document.getElementById('keyFile').click()" title="Load a PrivateNess key file (public fields only)">📁 Key file…</button>
+      <button class="fbtn" onclick="openWiz()" title="Create a new identity with the PrivateNess Lite wizard">＋ New…</button>
+      <input type="file" id="keyFile" accept=".json,.xml,application/json" onchange="loadKeyFile(this)">
+    </span>
+    <span class="tag">SOVEREIGN · PRIVATE · REWARDING</span>
+    <span class="hs">
+      <span class="lab">Source</span>
+      <select id="srcPick" onchange="pickSource()" title="Only endpoints that actually answered are listed">
+        <option value="">— scanning —</option>
+      </select>
+      <button class="btn" onclick="scanSources()" id="scanBtn">Scan</button>
+      <button class="btn go" onclick="connect()">Observe</button>
+      <span class="dot" id="dot"></span><span id="mode">NOT OBSERVED</span>
+      <span class="num" id="clock">--:--:--</span>
+    </span>
+  </div>
+
+  <div class="grid">
+    <div class="pan">
+      <div class="pt">Identity &amp; Energy <span class="prov none" id="pvId">NOT OBSERVED</span></div>
+      <div class="body" id="idBody"></div>
+    </div>
+
+    <div class="pan" style="grid-row:span 2">
+      <div class="pt">Live Topology <span class="prov none" id="pvTopo">NOT OBSERVED</span></div>
+      <div class="body">
+        <canvas id="topo"></canvas>
+        <div class="legend" id="legend"></div>
+        <div class="stats">
+          <div class="st"><div class="k2">PATHS</div><div class="v2 no" id="sPaths">—</div></div>
+          <div class="st"><div class="k2">PEERS</div><div class="v2 no" id="sPeers">—</div></div>
+          <div class="st"><div class="k2">ENTROPY</div><div class="v2 no" id="sEnt">—</div></div>
+          <div class="st"><div class="k2">PACKETS/S</div><div class="v2 no" id="sPps">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pan">
+      <div class="pt">Transports <span class="prov none" id="pvLayers">NOT OBSERVED</span></div>
+      <div class="body"><div class="layers" id="layers"></div></div>
+    </div>
+
+    <div class="pan">
+      <div class="pt">Entropy · UHE-PRNG <span class="prov none" id="pvEnt">NOT OBSERVED</span></div>
+      <div class="body"><canvas id="wave"></canvas>
+        <div class="legend" style="justify-content:space-between">
+          <span id="entCap">VRF · 1536-bit internal state</span><span id="entVal" class="num">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pan">
+      <div class="pt">Red Team · EmerNVS <span class="prov none" id="pvRt">NOT OBSERVED</span></div>
+      <div class="body">
+        <div class="rtbar">
+          <span class="rtk">verdicts live in name records — nothing else to check</span>
+          <span class="rtn num" id="rtCount">—</span>
+        </div>
+        <div class="rows" id="rt"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span><b>NESS</b> · EMC · SKY</span>
+    <span class="rule">no mocks · no placeholders · no fake verification</span>
+    <span class="sp"></span>
+    <span id="footNote">checked:false is not a pass — it is an admission</span>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<div class="ov" id="wiz" onclick="if(event.target===this)closeWiz()">
+  <div class="dlg">
+    <div class="dh"><span>Create identity · PrivateNess Lite</span>
+      <button class="btn" onclick="closeWiz()">✕</button></div>
+    <div class="dnote">This page never generates or holds a key. It writes the setup script; <b>you</b> run it on your machine,
+      and <code>keygen</code> creates the keys locally.</div>
+    <div class="dgrid">
+      <label>Master user name<input id="wUser" value="master01"></label>
+      <label>Master key entropy<input id="wEnt" value="100"></label>
+      <label>Node URL<input id="wUrl" value="http://batman1.private.ness"></label>
+      <label>Node tariff (NCH/hour)<input id="wTar" value="1000"></label>
+      <label>Node services<input id="wSvc" value="prng,files"></label>
+      <label>Node network<input id="wNet" value="inet"></label>
+      <label>Node entropy<input id="wNent" value="100"></label>
+    </div>
+    <div class="dhint">networks: inet (clearnet), skywire, yggdrasil, i2p, tor — comma separated</div>
+    <div class="dact">
+      <button class="btn go" onclick="genScript()">Generate script</button>
+      <button class="btn" onclick="copyScript()">Copy</button>
+      <button class="btn" onclick="dlScript()">Download .sh</button>
+      <span class="dsp"></span>
+      <a class="lnk" href="https://faucet.ness.cx" target="_blank" rel="noopener">faucet.ness.cx</a>
+      <a class="lnk" href="https://nvs.ness.cx" target="_blank" rel="noopener">nvs.ness.cx</a>
+    </div>
+    <textarea id="wOut" readonly spellcheck="false" placeholder="Press Generate script — the exact commands appear here for you to review before running."></textarea>
+    <div class="dfoot">After running it: register the two EmerNVS records, then load
+      <code>~/.privateness-keys/users.key.json</code> with <b>Key file…</b> to select the identity here.</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ─────────────────────────────────────────────────────────────────────────────
+   HOUSE RULE: no Math.random, no fabricated values, anywhere.
+   Motion is allowed; a motion that ENCODES a measurement is not, unless the
+   measurement was observed. Idle animation is visibly idle and says so.
+   EmerEyes: {checked, ok} separate; provenance its own axis.
+   ───────────────────────────────────────────────────────────────────────────*/
+const LAYERS=[
+ {id:'lbrty',n:'LBRTY',c:'#a855f7',g:'◈',l:'L1'},
+ {id:'softether',n:'SOFTETHER',c:'#38bdf8',g:'⬢',l:'L2'},
+ {id:'skywire',n:'SKYWIRE',c:'#3b82f6',g:'❋',l:'L2.5'},
+ {id:'emerdns',n:'EMERDNS',c:'#22c55e',g:'✷',l:'L3'},
+ {id:'yggdrasil',n:'YGGDRASIL',c:'#4ade80',g:'✷',l:'opt'},
+ {id:'i2p',n:'I2P',c:'#eab308',g:'⬡',l:'opt'},
+ {id:'tor',n:'TOR',c:'#d946ef',g:'◐',l:'opt'}];
+const LC=Object.fromEntries(LAYERS.map(l=>[l.id,l.c]));
+const OKS={online:1,offline:1,standby:1,degraded:1,unknown:1};
+
+let ST=null, LIVE=false, SRC='', IDENT='', TIMER=null, FILEIDS=[];
+
+const el=id=>document.getElementById(id);
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nOr=(v,max)=>{const n=Number(v);return Number.isFinite(n)&&n>=0&&n<=max?n:null;};
+const stat=v=>{const s=String(v||'unknown').toLowerCase();return OKS[s]?s:'unknown';};
+const fmt=n=>n==null?null:n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+function prov(id,s,t){const e=el(id);e.className='prov '+s;e.textContent=t;}
+function toast(msg,warn){const t=el('toast');t.textContent=msg;t.className='toast show'+(warn?' warn':'');
+  clearTimeout(t._h);t._h=setTimeout(()=>t.className='toast',5200);}
+
+/* ── KEY FILE: public fields only. Secrets are never read into the page. ──── */
+const SECRET_KEYS=/^(secret|seed|priv|privkey|private_key|privatekey|mnemonic|xprv|wif|entropy_seed)$/i;
+function scrubFind(obj,out,depth){
+  if(!obj||typeof obj!=='object'||depth>6) return;
+  for(const k of Object.keys(obj)){
+    if(SECRET_KEYS.test(k)){ out._hadSecret=true; continue; }   // never copied, never shown
+    const v=obj[k];
+    if(v&&typeof v==='object'){ scrubFind(v,out,depth+1); continue; }
+    const kk=k.toLowerCase();
+    if(kk==='nvs'||kk==='name') out.nvs=out.nvs||String(v);
+    else if(kk==='worm') out.worm=out.worm||String(v);
+    else if(kk==='address'||kk==='addr') out.address=out.address||String(v);
+    else if(kk==='pubkey'||kk==='public_key'||kk==='publickey') out.pubkey=out.pubkey||String(v);
+    else if(kk==='user'||kk==='username'||kk==='handle') out.handle=out.handle||String(v);
+  }
+}
+function loadKeyFile(input){
+  const f=input.files&&input.files[0]; if(!f) return;
+  if(f.size>2*1024*1024){ toast('Refused: file larger than 2 MB — that is not a key file.',true); input.value=''; return; }
+  const rd=new FileReader();
+  rd.onload=()=>{
+    let parsed=null;
+    try{ parsed=JSON.parse(rd.result); }
+    catch(e){ toast('Could not parse as JSON. Expecting users.key.json / node.key.json.',true); input.value=''; return; }
+    const out={}; scrubFind(parsed,out,0);
+    const nvs=out.nvs&&/^ness:/.test(out.nvs)?out.nvs
+             :(out.handle?'ness:id:'+out.handle:null);
+    if(!nvs){ toast('No public identity found in that file (looked for nvs / name / user).',true); input.value=''; return; }
+    const ent={nvs:nvs,handle:'ness://'+nvs.replace(/^ness:id:/,''),mine:false,file:true,
+               address:out.address||null,pubkey:out.pubkey?String(out.pubkey).slice(0,16):null};
+    FILEIDS=FILEIDS.filter(x=>x.nvs!==ent.nvs); FILEIDS.push(ent);
+    IDENT=ent.nvs;
+    toast(out._hadSecret
+      ? '⚠ Loaded PUBLIC fields only — '+esc(f.name)+' contains secret material, which was NOT read into this page or sent anywhere.'
+      : 'Loaded public identity from '+esc(f.name)+'. No secrets present.', !!out._hadSecret);
+    input.value=''; render();
+  };
+  rd.onerror=()=>{ toast('Could not read that file.',true); input.value=''; };
+  rd.readAsText(f);
+}
+
+/* -- LITE WIZARD: emits the same script the PrivateNess Lite wizard emits.
+   The page performs no key generation and no chain writes; it only prepares
+   commands for the operator to review and run. --------------------------- */
+function openWiz(){el('wiz').classList.add('on');}
+function closeWiz(){el('wiz').classList.remove('on');}
+const wv=id=>String(el(id).value||'').trim();
+const SQ=String.fromCharCode(39), BSL=String.fromCharCode(92);
+// bash single-quote: ' -> '\'' , built via char codes to avoid escape ambiguity
+function shq(s){return SQ+String(s).split(SQ).join(SQ+BSL+SQ+SQ)+SQ;}
+
+function buildScript(){
+  const user=wv('wUser'),ent=wv('wEnt'),url=wv('wUrl'),tar=wv('wTar'),
+        svc=wv('wSvc'),net=wv('wNet'),nent=wv('wNent');
+  const L=[
+  '#!/bin/bash',
+  'set -euo pipefail',
+  '',
+  '# PrivateNess Lite -- identity setup',
+  '# Review every line before running. Nothing here was executed by the dashboard.',
+  '',
+  '# Ensure folder structure exists',
+  'mkdir -p ~/go/src/github.com/ness-network/',
+  'cd ~/go/src/github.com/ness-network/',
+  '',
+  '# 0. Ensure Python 3, pip3 and venv are installed',
+  "command -v python3 >/dev/null 2>&1 || { echo >&2 'Python3 is not installed. Aborting.'; exit 1; }",
+  "command -v pip3    >/dev/null 2>&1 || { echo >&2 'pip3 is not installed. Aborting.'; exit 1; }",
+  'python3 -m venv venv && . venv/bin/activate',
+  '',
+  '# 1. Upgrade pip and install wheel',
+  'pip install --upgrade pip wheel',
+  '',
+  '# 2. Install Python dependencies',
+  'pip install requests prettytable validators lxml pycryptodome pynacl random_word humanize charset-normalizer idna urllib3 certifi wcwidth cffi autopep8 pytest pyyaml pycodestyle iniconfig packaging pluggy pycparser',
+  '',
+  '# 3. Clone PrivatenessTools',
+  'git clone https://github.com/NESS-Network/PrivatenessTools || true',
+  'cd PrivatenessTools',
+  '',
+  '# 4. Install requirements.txt (redundant but safe)',
+  'pip install -r requirements.txt',
+  '',
+  '# 5. Generate master user key  (keys are created HERE, on your machine)',
+  './keygen user '+shq(user)+' '+shq(ent),
+  '',
+  '# 6. Generate node key',
+  '#    CONFIRM the argument order for your build:  ./keygen node --help',
+  './keygen node '+shq(url)+' '+shq(tar)+' '+shq(svc)+' '+shq(net)+' '+shq(nent),
+  '',
+  'USERS_KEY="$HOME/.privateness-keys/users.key.json"',
+  'NODE_KEY="$HOME/.privateness-keys/node.key.json"',
+  '',
+  'USER_NVS=$(./key nvs "$USERS_KEY")',
+  'USER_WORM=$(./key worm "$USERS_KEY")',
+  'NODE_NVS=$(./key nvs "$NODE_KEY")',
+  'NODE_WORM=$(./key worm "$NODE_KEY")',
+  '',
+  'cat <<EOF',
+  '',
+  'Operation Successful',
+  '',
+  'Register these 2 EmerNVS records, and add an EmerDNS dns: record',
+  'for your node URL ('+url+'):',
+  '',
+  '  $USER_NVS:$USER_WORM',
+  '  $NODE_NVS:$NODE_WORM',
+  '',
+  'Get coins:             https://faucet.ness.cx',
+  'Register your records: https://nvs.ness.cx',
+  '',
+  'Then load $USERS_KEY in the dashboard with "Key file..." to select this identity.',
+  'EOF',
+  ''];
+  return L.join('\n');
+}
+function genScript(){
+  if(!wv('wUser')){toast('Master user name is required.',true);return;}
+  el('wOut').value=buildScript();
+  toast('Script written. Read it, then run it yourself -- nothing was executed here.');
+}
+function copyScript(){
+  const t=el('wOut'); if(!t.value)genScript();
+  navigator.clipboard.writeText(t.value).then(()=>toast('Script copied to clipboard.'),
+    ()=>{t.select();document.execCommand('copy');toast('Script copied.');});
+}
+function dlScript(){
+  const t=el('wOut'); if(!t.value)genScript();
+  const b=new Blob([t.value],{type:'text/x-sh'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='nessnode-setup.sh';
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(a.href);},120);
+  toast('Downloaded nessnode-setup.sh -- review before running.');
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeWiz();});
+
+/* ── SOURCE: probed, never assumed ───────────────────────────────────────── */
+const CANDIDATES=['http://127.0.0.1:8787','http://localhost:8787','http://127.0.0.1:8788'];
+async function probeOne(u){
+  try{const c=new AbortController();const t=setTimeout(()=>c.abort(),2200);
+    const r=await fetch(u.replace(/\/+$/,'')+'/healthz',{signal:c.signal});clearTimeout(t);return r.ok;}
+  catch(e){return false;}
+}
+async function scanSources(){
+  const b=el('scanBtn'),s=el('srcPick');b.textContent='…';b.disabled=true;
+  const found=[];for(const u of CANDIDATES){if(await probeOne(u))found.push(u);}
+  s.innerHTML=(found.length?found.map(u=>`<option value="${esc(u)}">${esc(u.replace(/^https?:\/\//,''))} · answered</option>`).join('')
+    :'<option value="">no source answered</option>')+'<option value="__c">custom…</option>';
+  if(found.length){s.value=found[0];SRC=found[0];await connect();}
+  else{toast('No collector answered. Start nesscollector, then press Scan.',true);render();}
+  b.textContent='Scan';b.disabled=false;
+}
+function pickSource(){
+  const s=el('srcPick');
+  if(s.value==='__c'){const u=prompt('Collector base URL','http://127.0.0.1:8787');
+    if(u){const o=document.createElement('option');o.value=u;o.textContent=u.replace(/^https?:\/\//,'');
+      s.insertBefore(o,s.firstChild);s.value=u;SRC=u;connect();}else s.value=SRC;return;}
+  SRC=s.value;if(SRC)connect();else render();
+}
+async function connect(){
+  if(!SRC){render();return;}
+  try{const c=new AbortController();const t=setTimeout(()=>c.abort(),4000);
+    const r=await fetch(SRC.replace(/\/+$/,'')+'/state.json',{signal:c.signal});clearTimeout(t);
+    const d=await r.json();ST=(d&&typeof d==='object')?d:null;LIVE=!!ST;}
+  catch(e){ST=null;LIVE=false;}
+  render();
+  if(!TIMER)TIMER=setInterval(connect,5000);
+}
+
+/* ── identities: observed on-chain + loaded from file, provenance kept ────── */
+function allIdentities(){
+  const chain=(ST&&Array.isArray(ST.identities))?ST.identities:[];
+  return chain.concat(FILEIDS.filter(f=>!chain.some(c=>c.nvs===f.nvs)));
+}
+function activeIdentity(){const l=allIdentities();return l.find(i=>i.nvs===IDENT)||l[0]||null;}
+function pickIdentity(){IDENT=el('idPick').value;render();}
+
+/* ── render ──────────────────────────────────────────────────────────────── */
+function render(){
+  el('dot').className='dot '+(LIVE?'ok':'no');
+  el('mode').textContent=LIVE?'YOUR NODE':'NOT OBSERVED';
+  const live=(ST&&ST.meta&&ST.meta.live)||{};
+  const emc=!!live.emercoind, fib=!!live.fiber, ctl=!!live.nessctl;
+
+  // identity picker
+  const list=allIdentities(), sel=el('idPick');
+  sel.innerHTML=list.length?list.map(i=>`<option value="${esc(i.nvs)}">${esc(i.handle)}${i.mine?' · yours':(i.file?' · from file':'')}</option>`).join('')
+    :'<option value="">— none observed —</option>';
+  if(list.length){if(!list.some(i=>i.nvs===IDENT))IDENT=list[0].nvs;sel.value=IDENT;}
+  const act=activeIdentity();
+
+  // identity + energy panel
+  prov('pvId', act? (act.file?'file':(emc||fib?'node':'none')) : 'none',
+       act? (act.file?'KEY FILE':(emc||fib?'YOUR NODE':'NOT OBSERVED')) : 'NOT OBSERVED');
+  const nch=ST?nOr(ST.energy&&ST.energy.balance,1e15):null;
+  const coins=ST?nOr(ST.energy&&ST.energy.coins,1e15):null;
+  const rep=ST?nOr(ST.identity&&ST.identity.rep,100):null;
+  if(!act && !ST){
+    el('idBody').innerHTML=`<div class="guide">
+      <div class="h">START HERE</div>
+      <div class="steps">
+        <div>1 · run <b>nesscollector</b> on this machine</div>
+        <div>2 · press <b>Scan</b> — sources that answer appear</div>
+        <div>3 · or load a <b>key file</b> for identity only</div>
+      </div>
+      <div class="s">Nothing is shown until something is observed. Empty here means empty, not broken.</div></div>`;
+  } else {
+    const pct=(nch!=null&&coins)?Math.max(0,Math.min(1,nch/(coins*24||1))):null;
+    el('idBody').innerHTML=`
+      <div class="kv">
+        <span class="k">Handle</span><span class="v ${act?(act.mine?'g':'c'):'m'}">${act?esc(act.handle):'—'}</span>
+        <span class="k">Key</span><span class="v ${act&&act.mine?'g':'a'}">${act?(act.mine?'in your wallet':(act.file?'file · public only':'configured')):'—'}</span>
+        <span class="k">Reputation</span><span class="v ${rep==null?'m':'g'}">${rep==null?'—':rep+'%'}</span>
+      </div>
+      <div class="energy">
+        <div class="ering">
+          <svg width="76" height="76"><circle cx="38" cy="38" r="31" fill="none" stroke="#16202f" stroke-width="6"/>
+          <circle id="eArc" cx="38" cy="38" r="31" fill="none" stroke="${pct==null?'#22304a':'url(#eg)'}" stroke-width="6"
+            stroke-linecap="round" stroke-dasharray="194.8" stroke-dashoffset="${pct==null?194.8:(194.8*(1-pct)).toFixed(1)}"
+            transform="rotate(-90 38 38)"/>
+          <defs><linearGradient id="eg"><stop offset="0" stop-color="#a855f7"/><stop offset="1" stop-color="#22c55e"/></linearGradient></defs></svg>
+          <div class="lab"><div class="pc ${pct==null?'no':''}">${pct==null?'—':Math.round(pct*100)+'%'}</div></div>
+        </div>
+        <div class="etxt">
+          <div class="t">${esc((ST&&ST.energy&&ST.energy.ticker)||'NCH')} — ENERGY</div>
+          <div class="b ${nch==null?'no':''}">${nch==null?'NOT OBSERVED':fmt(nch)}</div>
+          <div class="u">${coins==null?'accrues 1/hr per whole NESS':fmt(coins)+' NESS held'}</div>
+        </div>
+      </div>
+      <div class="kv">
+        <span class="k">Chain tip</span><span class="v ${ST&&ST.chain&&ST.chain.blocks!=null?'c':'m'}">${ST&&ST.chain&&ST.chain.blocks!=null?String(ST.chain.blocks):'—'}</span>
+        <span class="k">Authority</span><span class="v ${emc?'g':'m'}">${emc?'dpo:PrivateNESS.Network':'—'}</span>
+      </div>`;
+  }
+
+  // transports
+  const st=(ST&&ST.status)||{}; const has=Object.keys(st).length>0&&ctl;
+  prov('pvLayers',has?'node':'none',has?'YOUR NODE':'NOT OBSERVED');
+  el('layers').innerHTML=has?LAYERS.map(l=>{const s=stat(st[l.id]);
+    return `<div class="lr"><span class="lv">${l.l}</span><span class="gl" style="color:${l.c}">${l.g}</span>
+      <span class="n">${esc(l.n)}</span><span class="s s-${s}"><span class="sd"></span><span>${esc(s)}</span></span></div>`;}).join('')
+    :`<div class="unobs"><b>NO OBSERVATION</b>nessctl has not reported.<br>Transport state is unknown —<br>not assumed offline.</div>`;
+
+  // ── RED TEAM = EmerNVS. Unconfirmed (mempool) first, then confirmed records.
+  // A name's subtype IS its verdict class; nothing is scored or invented here.
+  const pend=(ST&&Array.isArray(ST.pending))?ST.pending:null;
+  const recs=(ST&&Array.isArray(ST.records))?ST.records:null;
+  const seen = pend||recs;
+  prov('pvRt', seen?'node':'none', seen?'YOUR NODE':'NOT OBSERVED');
+  const kind=n=>{
+    if(/^ness:id:/.test(n))   return ['id','IDENTITY'];
+    if(/^ness:rep:/.test(n))  return ['rep','REPUTATION'];
+    if(/^ness:node:/.test(n)) return ['node','NODE'];
+    if(/^dpo:/.test(n))       return ['dpo','OWNERSHIP'];
+    return ['','RECORD'];
+  };
+  let html='';
+  if(pend&&pend.length){
+    html+=pend.slice(0,20).map(p=>{const n=String(p.name||'');
+      return `<div class="rec pend"><span class="vd">UNCONFIRMED</span><div class="nm">${esc(n)}</div>
+        <div class="vl">${esc(p.operation||'')} · ${esc(String(p.txid||'').slice(0,16))}</div></div>`;}).join('');
+  }
+  if(recs&&recs.length){
+    html+=recs.slice(0,60).map(r=>{const n=String(r.name||'');const[c,lbl]=kind(n);
+      const ex=(r.expires_in!=null)?` · expires in ${Math.round(r.expires_in)}`:'';
+      return `<div class="rec ${c}"><span class="vd">${lbl}</span><div class="nm">${esc(n)}</div>
+        <div class="vl">${esc(String(r.value||'').slice(0,110))}${ex}</div></div>`;}).join('');
+  }
+  el('rt').innerHTML = html || (seen
+    ? `<div class="unobs"><b>NAMESPACE CLEAR</b>No records and no unconfirmed<br>operations. This is an observation.</div>`
+    : `<div class="unobs"><b>NO OBSERVATION</b>emercoind name_filter / name_mempool<br>have not been read.</div>`);
+  el('rtCount').textContent = seen ? ((recs?recs.length:0)+(pend?pend.length:0)) : '—';
+
+  // stats
+  const s=(ST&&ST.stats)||{};
+  const put=(id,v)=>{const e=el(id);if(v==null){e.textContent='—';e.className='v2 no';}else{e.textContent=v;e.className='v2';}};
+  put('sPaths',ST?nOr(s.paths,1e6):null);
+  put('sEnt',ST?nOr(s.entropyBits,1e9):null);
+  put('sPps',ST?nOr(s.pps,1e12):null);
+  const peers=(ST&&Array.isArray(ST.peers))?ST.peers:null;
+  put('sPeers',peers?peers.length:null);
+  const eb=ST?nOr(s.entropyBits,1e9):null;
+  prov('pvEnt',eb!=null?'node':'none',eb!=null?'YOUR NODE':'NOT OBSERVED');
+  el('entVal').textContent=eb==null?'—':eb+' bits';
+  el('legend').innerHTML=LAYERS.slice(0,4).map(l=>`<span><i style="background:${l.c}"></i>${esc(l.n)}</span>`).join('');
+}
+
+/* ── ANIMATION ────────────────────────────────────────────────────────────
+   Observed  -> motion carries real values (peers, pps, entropy bits).
+   Unobserved-> a slow idle sweep that is plainly idle and states so. It
+                encodes nothing, so it asserts nothing.
+   Deterministic: driven by wall-clock time, never Math.random.            */
+const topo=el('topo'), tg=topo.getContext('2d');
+const wave=el('wave'), wg=wave.getContext('2d');
+
+function fit(c){const w=c.clientWidth||10,h=c.clientHeight||10;if(c.width!==w||c.height!==h){c.width=w;c.height=h;}return[w,h];}
+
+function drawTopo(t){
+  const [w,h]=fit(topo); tg.clearRect(0,0,w,h);
+  const peers=(ST&&Array.isArray(ST.peers))?ST.peers:null;
+  // globe rings — decoration, constant, asserts nothing
+  tg.strokeStyle='rgba(40,60,90,.22)';tg.lineWidth=1;
+  for(let k=0;k<5;k++){tg.beginPath();tg.ellipse(w/2,h/2,w*.42,h*(.1+k*.085),0,0,7);tg.stroke();}
+  if(!peers||!peers.length){
+    prov('pvTopo','none','NOT OBSERVED');
+    // idle sweep: one slow arc, clearly a scan, carries no measurement
+    const a=(t/2600)%(Math.PI*2);
+    tg.strokeStyle='rgba(59,130,246,.30)';tg.lineWidth=1.5;
+    tg.beginPath();tg.arc(w/2,h/2,Math.min(w,h)*.30,a,a+.5);tg.stroke();
+    tg.fillStyle='#3f5170';tg.textAlign='center';tg.font='600 9px Inter,sans-serif';
+    tg.fillText('NO OBSERVATION',w/2,h/2-12);
+    tg.font='10px Inter,sans-serif';tg.fillStyle='#5b6b82';
+    tg.fillText('No peer set reported. A topology drawn without',w/2,h/2+8);
+    tg.fillText('observed peers would be decoration, not data.',w/2,h/2+23);
+    return;
+  }
+  prov('pvTopo','node','YOUR NODE');
+  const cx=w/2,cy=h/2,R=Math.min(w,h)*.34,N=peers.length;
+  const pos=peers.map((p,i)=>{const a=(i/N)*Math.PI*2-Math.PI/2;
+    const ring=(p.hops&&p.hops>1)?.62:1;
+    return {x:cx+Math.cos(a)*R*ring*1.55,y:cy+Math.sin(a)*R*ring,p};});
+  // edges: real links only
+  const edges=[];
+  pos.forEach((n,i)=>{(Array.isArray(n.p.links)?n.p.links:[]).forEach(j=>{const m=pos[j];if(m)edges.push([n,m,n.p.transport]);});});
+  if(!edges.length) pos.forEach(n=>edges.push([{x:cx,y:cy},n,n.p.transport])); // hop to self is real
+  tg.lineWidth=1;
+  edges.forEach(([a,b,tr])=>{tg.strokeStyle=LC[tr]||'#2b3a52';tg.globalAlpha=.42;
+    tg.beginPath();tg.moveTo(a.x,a.y);tg.lineTo(b.x,b.y);tg.stroke();});
+  tg.globalAlpha=1;
+  // packet motion: speed derived from OBSERVED packets/s; none observed -> no packets drawn
+  const pps=ST?nOr(ST.stats&&ST.stats.pps,1e12):null;
+  if(pps!=null&&pps>0){
+    const cyc=Math.max(600,120000/Math.max(1,Math.min(pps,4000)));
+    edges.forEach(([a,b,tr],i)=>{
+      const ph=((t+i*(cyc/edges.length))%cyc)/cyc;
+      tg.fillStyle=LC[tr]||'#6b7f9c';
+      tg.beginPath();tg.arc(a.x+(b.x-a.x)*ph,a.y+(b.y-a.y)*ph,2,0,7);tg.fill();});
+  }
+  // self
+  const pl=1+.22*Math.sin(t/620);
+  tg.fillStyle='rgba(226,232,240,.16)';tg.beginPath();tg.arc(cx,cy,9*pl,0,7);tg.fill();
+  tg.fillStyle='#e2e8f0';tg.beginPath();tg.arc(cx,cy,4,0,7);tg.fill();
+  tg.fillStyle='#5b6b82';tg.font='9px Inter,sans-serif';tg.textAlign='center';tg.fillText('self',cx,cy+17);
+  pos.forEach((n,i)=>{const c=LC[n.p.transport]||'#64748b';
+    const g2=1+.18*Math.sin(t/700+i);
+    tg.fillStyle=c;tg.globalAlpha=.18;tg.beginPath();tg.arc(n.x,n.y,10*g2,0,7);tg.fill();
+    tg.globalAlpha=1;tg.beginPath();tg.arc(n.x,n.y,4,0,7);tg.fill();
+    if(n.p.pk){tg.fillStyle='#5b6b82';tg.font='8px "SF Mono",Consolas,monospace';
+      tg.fillText(String(n.p.pk).slice(0,8),n.x,n.y+16);}});
+}
+
+function drawWave(t){
+  const [w,h]=fit(wave);wg.clearRect(0,0,w,h);
+  const bits=ST?nOr(ST.stats&&ST.stats.entropyBits,1e9):null;
+  const samples=(ST&&Array.isArray(ST.entropySamples))?ST.entropySamples:null;
+  const bars=Math.floor(w/4);
+  if(samples&&samples.length){       // real sampled entropy
+    for(let i=0;i<bars;i++){
+      const v=nOr(samples[i%samples.length],1);if(v==null)continue;
+      const bh=4+v*(h-10),y=(h-bh)/2;
+      const gr=wg.createLinearGradient(0,y,0,y+bh);gr.addColorStop(0,'#a855f7');gr.addColorStop(1,'#22c55e');
+      wg.fillStyle=gr;wg.fillRect(i*4,y,2.4,bh);}
+    return;
+  }
+  if(bits!=null){ // state capacity observed, per-sample values not: show a calm carrier, labelled
+    for(let i=0;i<bars;i++){
+      const bh=6+((Math.sin((i*0.35)+t/900)+1)/2)*(h*0.45),y=(h-bh)/2;
+      wg.fillStyle='rgba(34,197,94,.30)';wg.fillRect(i*4,y,2.4,bh);}
+    wg.fillStyle='#5b6b82';wg.font='9px Inter,sans-serif';wg.textAlign='center';
+    wg.fillText('state capacity observed · per-sample values not exposed',w/2,h-3);
+    return;
+  }
+  // nothing observed: flat line + idle pulse
+  wg.strokeStyle='rgba(91,107,130,.35)';wg.lineWidth=1;
+  wg.beginPath();wg.moveTo(0,h/2);wg.lineTo(w,h/2);wg.stroke();
+  const x=((t/22)%(w+60))-30;
+  const g3=wg.createLinearGradient(x-30,0,x+30,0);
+  g3.addColorStop(0,'rgba(59,130,246,0)');g3.addColorStop(.5,'rgba(59,130,246,.5)');g3.addColorStop(1,'rgba(59,130,246,0)');
+  wg.strokeStyle=g3;wg.lineWidth=2;wg.beginPath();wg.moveTo(x-30,h/2);wg.lineTo(x+30,h/2);wg.stroke();
+  wg.fillStyle='#3f5170';wg.font='9px Inter,sans-serif';wg.textAlign='center';
+  wg.fillText('NOT OBSERVED',w/2,h/2-9);
+}
+
+function frame(t){drawTopo(t);drawWave(t);requestAnimationFrame(frame);}
+function tick(){el('clock').textContent=new Date().toTimeString().slice(0,8);}
+setInterval(tick,1000);tick();
+window.addEventListener('resize',render);
+render();scanSources();requestAnimationFrame(frame);
+</script>
+</body></html>

@@ -1,0 +1,16 @@
+{
+  "listen": ":8787",
+  "identity": "ness://jeffbouchard",
+  "ticker": "XBTSX.NCH",
+  "emercoind_rpc": "http://127.0.0.1:6662",
+  "emercoind_auth": "rpcuser:rpcpassword",
+  "fiber_node": "http://127.0.0.1:6660",
+  "payment_addr": "<NESS payment UTXO address>",
+  "hoard_addr": "<NESS hoard UTXO address>",
+  "nessctl": "/usr/local/bin/nessctl",
+  "nessctl_status": "status",
+  "nessctl_peers": "peers",
+  "nvs_gateway": "https://nvs.ness.cx",
+  "benji_gateway": "https://cantdoevil.com",
+  "poll_sec": 5
+}
